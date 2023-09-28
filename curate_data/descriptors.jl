@@ -49,6 +49,22 @@ function sorted_descriptors(SM)
     sd
 end 
 
+function deepset(CM,ts)
+    s = size(CM)
+    d = s[1]
+    F = zeros(ts,s[2])
+    idx = sample(1:d, ts)
+    W = CM[idx,rand(1:s[2])]
+    b = CM[idx,rand(1:s[2])]
+    ρ = x -> sin.(0.1*x)
+    for i=1:s[2]
+        F[:,i] = sum(ρ.(W*CM[:,i]' .+ b),dims=2)[:]
+    end 
+    return F
+end 
+
+ 
+
 function derivative_coulomb_matrix(Z,R)
     s = size(R)
     cm = coulomb_matrix(Z,R)

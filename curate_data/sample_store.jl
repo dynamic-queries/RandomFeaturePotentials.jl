@@ -44,8 +44,6 @@ function curate(filename, target_name)
     close(file)
 end
 
-
-
 datasets = ["benzene2017","ethanol","malonaldehyde","naphthalene","salicylic","toluene","uracil","paracetamol_dft"]
 for set in datasets
     filename = "data/MD17/md17_$set/"

@@ -1,67 +1,4 @@
 abstract type AbstractApproximator end
-
-# ---------------------------------------------------------------------------------------------- #
-
-struct NN <: AbstractApproximator
-    dims_in
-    dims_out
-    layers
-    nepochs
-    learning_rate
-
-    function NN(dims_in, dims_out, layers, nepochs, learning_rate)
-        new(dims_in, dims_out, layers, nepochs, learning_rate)
-    end 
-end 
-
-function (nn::NN)(xtrain::AbstractArray, ytrain::AbstractArray)
-
-    # Get device
-    device = Lux.gpu_device()
-
-    # Define models
-    rng = Random.Xoshiro(99)
-    model = Chain(
-        Dense(nn.dims_in=>nn.layers[1],relu),
-        Dense(nn.layers[1]=>nn.dims_out,identity)
-    )
-    parameters, state = Lux.setup(rng, model) .|> device
-    xtrain = xtrain .|> device
-    ytrain = ytrain .|> device
-
-    # Evaluate once
-    val, st  = model(xtrain, parameters, state)
-
-    # Loss function
-    function loss(parameters, state)
-        ypred, lstate = model(xtrain, parameters, state)
-        loss = mean((ytrain .- ypred).^2)
-        return loss, lstate
-    end
-
-    # Training loop
-    function train(loss,learning_rate, nepochs, parameters, state) 
-        optim = Optimisers.Adam(learning_rate)
-        optim_state = Optimisers.setup(optim, parameters) 
-        loss_history = []
-        for epoch in 1:nepochs
-            (l, state,), back = Zygote.pullback(loss, parameters, state)
-            grad, _ = back((1.0,nothing))
-            optim_state, parameters = Optimisers.update(optim_state, parameters, grad)
-            push!(loss_history, l)
-            println("Epoch $epoch \t Loss $l")
-        end 
-        return parameters, state, loss_history
-    end
-
-    # For now manual
-    parameters, state, loss_history = train(loss,nn.learning_rate, nn.nepochs, parameters, state)
-
-    return (model, parameters, state), loss_history
-end 
-
-# ---------------------------------------------------------------------------------------------- #
-
 abstract type AbstractFeatureModel end
 
 mutable struct LinearFeatureModel <: AbstractFeatureModel 
@@ -134,29 +71,6 @@ function (heuristic::FiniteDifference)(xtrain, ytrain, Nl, multiplicity)
     ρ = map(norm, eachslice(num, dims=2)) ./ (map(norm, eachslice(den, dims=2)).+ϵ)
     return [idx_from, idx_to],ρ
 end
-
-function (heuristic::FullDerivative)(xtrain, ytrain, Nl, multiplicity)
-    M = size(xtrain)[end]
-    num = diff(ytrain,dims=2)
-    den = diff(xtrain,dims=2)
-    ϵ = 1e-8
-    ρ = map(norm, eachslice(num, dims=2)) ./ (map(norm, eachslice(den, dims=2)).+ϵ)
-    idx1 = 1:M-1
-    idx2 = 2:M
-    return [idx1, idx2],ρ
-end 
-
-function (heuristic::RandomDerivative)(xtrain, ytrain, Nl, multiplicity)
-    M = size(xtrain)[end]
-    nsamples = Nl*multiplicity
-    idx_from = sample(1:M, nsamples, replace=true)
-    idx_to = mod.(idx_from .+ 1, M).+1
-    num = ytrain[:,idx_to] .- ytrain[:,idx_from]
-    den = xtrain[:,idx_to] .- xtrain[:,idx_from]
-    ϵ = 1e-8
-    ρ = map(norm, eachslice(num, dims=2)) ./ (map(norm, eachslice(den, dims=2)) .+ϵ)
-    return [idx_from, idx_to],ρ
-end 
 
 # ---------------------------------------------------------------------------------------------- #
 struct SamplingNN <: AbstractApproximator
