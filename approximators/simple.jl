@@ -13,7 +13,7 @@ struct RFNN <: AbstractApproximator
     end 
 end
 
-function (snn::RFNN)(xtrain, ytrain, heuristic::typeof(AbstractHeuristic),λ;atol=1e-12)
+function (snn::RFNN)(xtrain, ytrain, heuristic::typeof(AbstractHeuristic),λ)
     # Evaluate sampling density
     M = size(xtrain)[end]
     Nl = snn.layers[1]
