@@ -40,7 +40,7 @@ begin
         @show m2,r2
         display(plot(f1,f2,size=(800,300)))
 
-        file = h5open("logs/isometry/benzene_energy.hdf5","w")
+        file = h5open("logs/permutation/benzene_energy.hdf5","w")
         file["err"] = err2
         file["layers"] = layers[1]
         file["MAE"] = m2
@@ -73,7 +73,7 @@ begin
         @show m2,r2
         display(plot(f1,f2,size=(800,300)))
 
-        file = h5open("logs/isometry/benzene_force.hdf5","w")
+        file = h5open("logs/permutation/benzene_force.hdf5","w")
         file["err"] = err2
         file["layers"] = layers[1]
         file["MAE"] = m2

@@ -93,9 +93,11 @@ function deepset(CM,ts,k)
     W = CM[idx,id1]
     b = CM[idx,id2]
     ρ = x -> sin.(k*x)
+    # ρ = gelu
     for i=1:s[2]
         F[:,i] = sum(ρ.(W*CM[:,i]' .+ b),dims=2)[:]
     end 
+    F = F ./ maximum(F)
     return F,x->ρ.(W*reshape(x,1,:) .+ b)
 end 
 

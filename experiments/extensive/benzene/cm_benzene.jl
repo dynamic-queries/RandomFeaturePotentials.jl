@@ -1,11 +1,11 @@
-include("../../approximators/domain_decomp.jl")
+include("../../../approximators/domain_decomp.jl")
 using HDF5
 using Plots
 
 begin
     filename = "data/benzene2017.hdf5"
     file = h5open(filename)
-    R = read(file["SCM"])
+    R = read(file["CM"])
     E = read(file["E"])
     F = read(file["F"])
     close(file)
@@ -17,13 +17,13 @@ begin
     ytrain = E[:,1:2700]
     xtest = R[:,2701:end]
     ytest = E[:,2701:end]
-    layers = 200*ones(Int,12)
+    layers = 500*ones(Int,12)
     heuristic = Uniform
-    lam = 1e-9
-    s1 = 2*log(1.5)
-    s2 = log(1.5)
+    lam = 1e-6
+    s1 = 1
+    s2 = 0
     feature_model = LinearFeatureModel(s1,s2)
-    es = RFNN_DD(layers,feature_model,multiplicity=1,activation=tanh)
+    es = RFNN_DD(layers,feature_model,multiplicity=1,activation=gelu)
     m = es(xtrain,ytrain,heuristic,lam)
     
     @show layers[1], lam
@@ -45,7 +45,7 @@ begin
     ytrain = F[:,1:2700]
     xtest = R[:,2701:end]
     ytest = F[:,2701:end]
-    layers = 300*ones(Int,12)
+    layers = 800*ones(Int,12)
     heuristic = Uniform
     lam = 1e-8
     s1 = 1

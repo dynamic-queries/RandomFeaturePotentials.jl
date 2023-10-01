@@ -3,7 +3,7 @@ using HDF5
 using Plots
 
 begin
-    filename = "data/benzene2017.hdf5"
+    filename = "data/uracil.hdf5"
     file = h5open(filename)
     R = read(file["CM"])
     E = read(file["E"])
@@ -11,6 +11,7 @@ begin
     close(file)
 end
 
+plot(R,legend=false)
 
 # Black box approximator
 begin 
@@ -49,7 +50,7 @@ begin
         @show m2,r2
         display(plot(f1,f2,size=(800,300)))
 
-        file = h5open("logs/isometry/benzene_energy.hdf5","w")
+        file = h5open("logs/isometry/uracil_energy.hdf5","w")
         file["err"] = err2
         file["layers"] = layers[1]
         file["MAE"] = m2
@@ -92,7 +93,7 @@ begin
         @show m2,r2
         display(plot(f1,f2,size=(800,300)))
 
-        file = h5open("logs/isometry/benzene_force.hdf5","w")
+        file = h5open("logs/isometry/uracil_force.hdf5","w")
         file["err"] = err2
         file["layers"] = layers[1]
         file["MAE"] = m2
