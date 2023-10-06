@@ -6,7 +6,7 @@ begin
     filename = "data/benzene2017.hdf5"
     file = h5open(filename)
     num_features = 144
-    R,f = deepset(read(file["CM"]),num_features,0.5)
+    R,f = deepset(read(file["CM"]),num_features,0.1)
     E = read(file["E"])
     F = read(file["F"])
     close(file)
@@ -25,7 +25,7 @@ begin
         activation = gelu
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
-        lam = 1e-7
+        lam = 1e-8
     
 
         train,test = split_data(R,E)

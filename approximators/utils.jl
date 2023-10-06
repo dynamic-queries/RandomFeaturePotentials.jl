@@ -20,12 +20,12 @@ mutable struct LinearFeatureModel <: AbstractFeatureModel
 end
 
 function (model::LinearFeatureModel)(rng, xtrain, idxs, ρ, K)
-    W(x1,x2) = model.s1*(x1-x2)/norm(x1-x2).^2
-    b(x1,x2) = ((x1-x2)/(norm(x1-x2)).^2)' * x1 + model.s2
+    W(x1,x2) = model.s1*(x1-x2)/norm(x1-x2).^1
+    b(x1,x2) = (((x1-x2)/(norm(x1-x2)).^1)' * x1) + model.s2
     
     nsamples = K
     L = length(ρ)
-    idx = wsample(rng, 1:L, Weights(ρ), nsamples, replace=false)
+    idx = wsample(rng, 1:L, Weights(ρ), nsamples, replace=true)
     idx_from = idxs[1][idx]
     idx_to = idxs[2][idx]
     W1 = []
@@ -33,7 +33,7 @@ function (model::LinearFeatureModel)(rng, xtrain, idxs, ρ, K)
     for i=1:K
         k1 = xtrain[:,idx_from[i]]
         k2 = xtrain[:,idx_to[i]]
-        if k1!=k2
+        if norm(k1-k2)>1e-12
             push!(W1,W(k1,k2))
             push!(b1,b(k1,k2))
         end
@@ -74,14 +74,15 @@ function (heuristic::FiniteDifference)(xtrain, ytrain, Nl, multiplicity)
     idx_to = sample(1:M, nsamples, replace=true)
     num = ytrain[:,idx_to] .- ytrain[:,idx_from]
     den = xtrain[:,idx_to] .- xtrain[:,idx_from]
-    ϵ = 1e-8
-    ρ = map(norm, eachslice(num, dims=2)) ./ (map(norm, eachslice(den, dims=2)).+ϵ)
+    ϵ = 1e-10
+    ρ = abs.(map(x->norm(x,1), eachslice(num, dims=2)) ./ (map(norm, eachslice(den, dims=2)).+ϵ)) .+ 1e-12
     return [idx_from, idx_to],ρ
 end
 
 # ---------------------------------------------------------------------------------------------- #
 # Activation functions
 gelu = x -> 0.5*x*(1+tanh(sqrt(2/π)*(x+0.044715*x^3)))
+relu = x -> max(x,0)
 
 function deepset(CM,ts,k)
     s = size(CM)
@@ -92,12 +93,12 @@ function deepset(CM,ts,k)
     id2 = rand(1:s[2])
     W = CM[idx,id1]
     b = CM[idx,id2]
-    ρ = x -> sin.(k*x)
-    # ρ = gelu
+    ρ = x -> sin(k*x) 
+    # ρ = tanh
     for i=1:s[2]
         F[:,i] = sum(ρ.(W*CM[:,i]' .+ b),dims=2)[:]
     end 
-    F = F ./ maximum(F)
+    # F = (F.-minimum(F)) ./ (maximum(F).-minimum(F))
     return F,x->ρ.(W*reshape(x,1,:) .+ b)
 end 
 
@@ -116,7 +117,7 @@ end
 function split_data(X,Y)
     d,m = size(X)
     idx = sample(1:m,m,replace=false)
-    r = ratio = floor(Int,m*0.9)
+    r = ratio = floor(Int,m*0.7)
     train_idx = idx[1:r]
     test_idx = idx[r+1:end]
     xtrain = X[:,train_idx]
@@ -147,3 +148,4 @@ function validate(model,data)
     return f1,MAE,RMSE,err    
 end 
 
+# ---------------------------------------------------------------------------------------------- #

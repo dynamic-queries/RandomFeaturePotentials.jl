@@ -1,32 +1,31 @@
-include("../../../approximators/simple.jl")
+include("../../approximators/simple.jl")
 using HDF5
 using Plots
 
 begin
-    filename = "data/benzene2017.hdf5"
+    filename = "data/toluene.hdf5"
     file = h5open(filename)
-    num_features = 144
-    R = read(file["SCM"])
+    R = read(file["CM"])
     E = read(file["E"])
     F = read(file["F"])
     close(file)
 end
 
-plot(R,legend=false)
+f1 = plot(R, legend=false)
 
+# Black box approximator
 begin 
-    # #Approximate energy
+    # Approximate energy
     begin
         @info "Energy"
-        layers = [5000]
-        s1 = 2*log(1.5)
-        s2 = log(1.5)
+        layers = [8000]
+        s1 = 1.0
+        s2 = 0.0
         feature_model = LinearFeatureModel(s1,s2)
-        activation = tanh
+        activation = gelu
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
-        lam = 1e-7
-    
+        lam = 1e-8
 
         train,test = split_data(R,E)
         xtrain,ytrain = train
@@ -34,6 +33,17 @@ begin
         Eapprox = m(xtrain,ytrain,heuristic,lam)
 
         f1,m1,r1,err1 = validate(Eapprox,train)
+
+        xtest,ytest = test
+
+        @info "Permutation"
+        idx = sample(1:15,15,replace=false)
+        r = reshape(xtest,15,15,:)[idx,idx,:]
+        r = reshape(r,225,:)
+        test_permute = (r,ytest)
+        f2,m2,r2,err2 = validate(Eapprox,test_permute)
+        @show m2,r2
+        # display(plot(f1,f2,size=(800,300)))
 
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
@@ -48,16 +58,17 @@ begin
         close(file)
     end
 
+
     # Approximate forces
     begin
         @info "Forces"
         layers = [10000]
-        s1 = 2*log(1.5)
-        s2 = log(1.5)
+        s1 = 1.0
+        s2 = 0.0
         feature_model = LinearFeatureModel(s1,s2)
-        activation = tanh
+        activation = gelu
         m = RFNN(layers,feature_model;activation=activation)
-        heuristic = Uniform
+        heuristic=Uniform
         lam = 1e-8
 
         train,test = split_data(R,F)
@@ -67,6 +78,15 @@ begin
 
         f1,m1,r1,err1 = validate(Eapprox,train)
 
+        xtest,ytest = test
+        @info "Permutation"
+        idx = sample(1:15,15,replace=false)
+        r = reshape(xtest,15,15,:)[idx,idx,:]
+        r = reshape(r,225,:)
+        test_permute = (r,ytest)
+        f2,m2,r2,err2 = validate(Eapprox,test_permute)
+        @show m2,r2
+        # display(plot(f1,f2,size=(800,300)))
 
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
