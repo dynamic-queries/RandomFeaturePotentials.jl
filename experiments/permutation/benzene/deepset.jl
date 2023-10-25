@@ -4,9 +4,10 @@ using Plots
 
 begin
     filename = "data/benzene2017.hdf5"
-    file = h5open(filename)
+    file = h5open(filename,"r")
     num_features = 144
-    R,f = deepset(read(file["CM"]),num_features,0.1)
+    cm = read(file["CM"])
+    R,f = deepset(read(file["CM"]),num_features,0.5)
     E = read(file["E"])
     F = read(file["F"])
     close(file)
@@ -14,18 +15,24 @@ end
 
 plot(R,legend=false)
 
+using TSne
+e_R = tsne(R',2,0,3000,5)
+f1 = scatter(e_R[:,1],e_R[:,2],ms=3.0,zcolor=E[:],title="DeepSet")
+f2 = scatter(e_R[:,1],e_R[:,2],ms=3.0,zcolor=1:3000,title="DeepSet")
+plot(f1,f2,size=(700,500))
+
 begin 
     # #Approximate energy
     begin
         @info "Energy"
         layers = [5000]
-        s1 = 1
-        s2 = 0
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
-        lam = 1e-8
+        lam = 1e-7
     
 
         train,test = split_data(R,E)
@@ -34,11 +41,11 @@ begin
         Eapprox = m(xtrain,ytrain,heuristic,lam)
 
         f1,m1,r1,err1 = validate(Eapprox,train)
-
+        @show m1,r1
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
         @show m2,r2
-        display(plot(f1,f2,size=(800,300)))
+        # display(plot(f1,f2,size=(800,300)))
 
         file = h5open("logs/permutation/benzene_energy.hdf5","w")
         file["err"] = err2
@@ -52,13 +59,13 @@ begin
     begin
         @info "Forces"
         layers = [8000]
-        s1 = 1.0
-        s2 = 0.0
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic = Uniform
-        lam = 1e-8
+        lam = 1e-7
 
         train,test = split_data(R,F)
         xtrain,ytrain = train
@@ -67,7 +74,7 @@ begin
 
         f1,m1,r1,err1 = validate(Eapprox,train)
 
-
+        @show m1,r1
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
         @show m2,r2

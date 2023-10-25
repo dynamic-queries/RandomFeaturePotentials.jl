@@ -44,7 +44,7 @@ begin
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
         @show m2,r2
-        display(plot(f1,f2,size=(800,300)))
+        # display(plot(f1,f2,size=(800,300)))
 
         file = h5open("logs/permutation/benzene_energy.hdf5","w")
         file["err"] = err2
@@ -63,7 +63,7 @@ begin
         feature_model = LinearFeatureModel(s1,s2)
         activation = gelu
         m = RFNN(layers,feature_model;activation=activation)
-        heuristic = FiniteDifference
+        heuristic = Uniform
         lam = 1e-8
 
         train,test = split_data(R,F)
@@ -72,6 +72,7 @@ begin
         Eapprox = m(xtrain,ytrain,heuristic,lam)
 
         f1,m1,r1,err1 = validate(Eapprox,train)
+        @show m1,r1
 
 
         @info "BB"

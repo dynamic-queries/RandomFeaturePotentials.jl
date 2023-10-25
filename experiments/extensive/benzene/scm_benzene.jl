@@ -17,7 +17,7 @@ begin
     ytrain = E[:,1:2700]
     xtest = R[:,2701:end]
     ytest = E[:,2701:end]
-    layers = 200*ones(Int,12)
+    layers = 300*ones(Int,12)
     heuristic = Uniform
     lam = 1e-9
     s1 = 2*log(1.5)

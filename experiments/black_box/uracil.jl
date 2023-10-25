@@ -18,7 +18,7 @@ begin
     # Approximate energy
     begin
         @info "Energy"
-        layers = [2000]
+        layers = [5000]
         s1 = 1.0
         s2 = 0.0
         feature_model = LinearFeatureModel(s1,s2)
@@ -76,7 +76,7 @@ begin
     # Approximate forces
     begin
         @info "Forces"
-        layers = [2000]
+        layers = [8000]
         s1 = 1.0
         s2 = 0.0
         feature_model = LinearFeatureModel(s1,s2)

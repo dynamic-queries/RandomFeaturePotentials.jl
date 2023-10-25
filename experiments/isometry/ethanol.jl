@@ -11,8 +11,6 @@ begin
     close(file)
 end
 
-size(R)
-f2 = plot(R[:,1],legend=false)
 
 
 # Black box approximator
@@ -20,14 +18,14 @@ begin
     # Approximate energy
     begin
         @info "Energy"
-        layers = [8000]
-        s1 = 1.0
-        s2 = 0.0
+        layers = [2000]
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
-        lam = 1e-8
+        lam = 1e-9
 
         train,test = split_data(R,E)
         xtrain,ytrain = train
@@ -64,11 +62,11 @@ begin
     # Approximate forces
     begin
         @info "Forces"
-        layers = [12000]
-        s1 = 1.0
-        s2 = 0.0
+        layers = [8000]
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
         lam = 1e-8

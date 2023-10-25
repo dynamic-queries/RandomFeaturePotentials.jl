@@ -5,27 +5,25 @@ using Plots
 begin
     filename = "data/paracetamol_dft.hdf5"
     file = h5open(filename)
-    R = read(file["CM"])
-    num_features = 841
-    R,f = deepset(read(file["CM"]),num_features,0.1)
+    R = read(file["SCM"])
     E = read(file["E"])
     F = read(file["F"])
     close(file)
 end
 
-# plot(R,legend=false)
+plot(R,legend=false)
 
 begin
     train,test = split_data(R,E)
     xtrain,ytrain = train
     xtest,ytest = test
-    layers = 450*ones(Int,29)
+    layers = 600*ones(Int,20)
     heuristic = Uniform
-    lam = 1e-7
-    s1 = 1
-    s2 = 0
+    lam = 1e-8
+    s1 = 2*log(1.5)
+    s2 = log(1.5)
     feature_model = LinearFeatureModel(s1,s2)
-    es = RFNN_DD(layers,feature_model,multiplicity=1,activation=gelu)
+    es = RFNN_DD(layers,feature_model,multiplicity=1,activation=tanh)
     m = es(xtrain,ytrain,heuristic,lam)
     
     @show layers[1], lam
@@ -46,13 +44,13 @@ begin
     train,test = split_data(R,F)
     xtrain,ytrain = train
     xtest,ytest = test
-    layers = 450*ones(Int,29)
-    heuristic = FiniteDifference
-    lam = 1e-5
-    s1 = 1
-    s2 = 0
+    layers = 600*ones(Int,20)
+    heuristic = Uniform
+    lam = 1e-8
+    s1 = 2*log(1.5)
+    s2 = log(1.5)
     feature_model = LinearFeatureModel(s1,s2)
-    es = RFNN_DD(layers,feature_model,multiplicity=1,activation=gelu)
+    es = RFNN_DD(layers,feature_model,multiplicity=1,activation=tanh)
     m = es(xtrain,ytrain,heuristic,lam)
     
     @show layers[1], lam
@@ -66,4 +64,4 @@ begin
     @show ma2, rms2
 
     # display(plot(fig1,fig2,size=(900,300)))
-end
+end 

@@ -7,10 +7,13 @@ begin
     file = h5open(filename)
     num_features = 144
     R,f = deepset(read(file["CM"]),num_features,0.05)
+    # cm = read(file["CM"])
+    # R = deepset(cm)
     E = read(file["E"])
     F = read(file["F"])
     close(file)
 end
+
 
 plot(R,legend=false)
 
@@ -18,7 +21,7 @@ begin
     #Approximate energy
     begin
         @info "Energy"
-        layers = [7000]
+        layers = [5000]
         s1 = 1
         s2 = 0
         feature_model = LinearFeatureModel(s1,s2)
@@ -52,15 +55,14 @@ begin
     # Approximate forces
     begin
         @info "Forces"
-        layers = [12000]
-        s1 = 1.0
-        s2 = 0.0
+        layers = [8000]
+        s1 = 1
+        s2 = 0
         feature_model = LinearFeatureModel(s1,s2)
         activation = gelu
         m = RFNN(layers,feature_model;activation=activation)
-        heuristic = Uniform
+        heuristic=Uniform
         lam = 1e-8
-
 
         train,test = split_data(R,F)
         xtrain,ytrain = train

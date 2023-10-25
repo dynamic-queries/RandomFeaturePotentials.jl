@@ -7,7 +7,7 @@ struct RFNN <: AbstractApproximator
     feature_model::AbstractFeatureModel
     activation
 
-    function RFNN(layers, feature_model; multiplicity=5, activation=tanh)
+    function RFNN(layers, feature_model; multiplicity=10, activation=tanh)
         rng = Xoshiro(0)
         new(rng, layers, multiplicity, feature_model, activation)
     end 
@@ -26,9 +26,8 @@ function (snn::RFNN)(xtrain, ytrain, heuristic::typeof(AbstractHeuristic),λ)
     # Solve for coefficients of last layer
     bases = snn.activation.(W*xtrain .- b)'
     
-
+    # Moorse-Penrose Pseudoinverse
     Ainfer = bases'*bases
-
     binfer = bases'*ytrain'
     coeff = (Ainfer + λ*I)\binfer
 

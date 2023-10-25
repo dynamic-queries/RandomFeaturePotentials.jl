@@ -75,7 +75,7 @@ begin
     # Approximate forces
     begin
         @info "Forces"
-        layers = [5000]
+        layers = [8000]
         s1 = 1.0
         s2 = 0.0
         feature_model = LinearFeatureModel(s1,s2)

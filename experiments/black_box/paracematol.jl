@@ -20,11 +20,11 @@ begin
     # Approximate energy
     begin
         @info "Energy"
-        layers = [10000]
-        s1 = 1.0
-        s2 = 0.0
+        layers = [8000]
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
         lam = 1e-8
@@ -34,6 +34,7 @@ begin
         Eapprox = m(xtrain,ytrain,heuristic,lam)
 
         f1,m1,r1,err1 = validate(Eapprox,train)
+        @show m1,r1
 
         xtest,ytest = test
         @info "Translation"
@@ -64,7 +65,7 @@ begin
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
         @show m2,r2
-        display(plot(f1,f2,size=(800,300)))
+        # display(plot(f1,f2,size=(800,300)))
 
         file = h5open("logs/black_box/benzene_energy.hdf5","w")
         file["err"] = err2
@@ -78,11 +79,11 @@ begin
     # Approximate forces
     begin
         @info "Forces"
-        layers = [12000]
-        s1 = 1.0
-        s2 = 0.0
+        layers = [10000]
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
         lam = 1e-8
@@ -92,6 +93,7 @@ begin
         Eapprox = m(xtrain,ytrain,heuristic,lam)
 
         f1,m1,r1,err1 = validate(Eapprox,train)
+        @show m1,r1
 
         xtest,ytest = test
         @info "Translation"
@@ -123,7 +125,7 @@ begin
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
         @show m2,r2
-        display(plot(f1,f2,size=(800,300)))
+        # display(plot(f1,f2,size=(800,300)))
 
         file = h5open("logs/black_box/benzene_force.hdf5","w")
         file["err"] = err2

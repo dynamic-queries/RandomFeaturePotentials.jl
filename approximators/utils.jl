@@ -20,8 +20,8 @@ mutable struct LinearFeatureModel <: AbstractFeatureModel
 end
 
 function (model::LinearFeatureModel)(rng, xtrain, idxs, ρ, K)
-    W(x1,x2) = model.s1*(x1-x2)/norm(x1-x2).^1
-    b(x1,x2) = (((x1-x2)/(norm(x1-x2)).^1)' * x1) + model.s2
+    W(x1,x2) = model.s1*(x1-x2)/norm(x1-x2).^2
+    b(x1,x2) = ((model.s1*(x1-x2)/(norm(x1-x2)).^2)' * x1) + model.s2
     
     nsamples = K
     L = length(ρ)
@@ -93,13 +93,26 @@ function deepset(CM,ts,k)
     id2 = rand(1:s[2])
     W = CM[idx,id1]
     b = CM[idx,id2]
+    # W = rand(ts, 1)
+    # b = rand()
     ρ = x -> sin(k*x) 
-    # ρ = tanh
+    # ρ = relu
     for i=1:s[2]
-        F[:,i] = sum(ρ.(W*CM[:,i]' .+ b),dims=2)[:]
+        temp = W*CM[:,i]' .+ b
+        F[:,i] = sum(ρ.(temp ),dims=2)[:]
     end 
     # F = (F.-minimum(F)) ./ (maximum(F).-minimum(F))
     return F,x->ρ.(W*reshape(x,1,:) .+ b)
+end 
+
+function deepset(CM)
+    s = size(CM)
+    d = s[1]
+    idx = rand(1:s[2],d)
+    W = CM[:,idx]
+    W = reduce(hcat, [W[:,i]./norm(W[:,i]) for i=1:size(W,1)])
+    temp = sum(W*CM,dims=1)
+    return temp ./ maximum(temp[:])
 end 
 
 function deepset(CM,f)

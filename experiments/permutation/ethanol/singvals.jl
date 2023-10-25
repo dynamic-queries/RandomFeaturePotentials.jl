@@ -18,14 +18,14 @@ begin
     # #Approximate energy
     begin
         @info "Energy"
-        layers = [8000]
-        s1 = 1
-        s2 = 0
+        layers = [5000]
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
-        lam = 1e-3
+        lam = 1e-8
     
 
         train,test = split_data(R,E)
@@ -51,14 +51,14 @@ begin
     # Approximate forces
     begin
         @info "Forces"
-        layers = [10000]
-        s1 = 1.0
-        s2 = 0.0
+        layers = [8000]
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic = Uniform
-        lam = 1e-3
+        lam = 1e-8
 
         train,test = split_data(R,F)
         xtrain,ytrain = train

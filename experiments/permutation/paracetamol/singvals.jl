@@ -19,10 +19,10 @@ begin
     begin
         @info "Energy"
         layers = [5000]
-        s1 = 1
-        s2 = 0
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
         lam = 1e-7
@@ -38,7 +38,7 @@ begin
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
         @show m2,r2
-        display(plot(f1,f2,size=(800,300)))
+        # display(plot(f1,f2,size=(800,300)))
 
         file = h5open("logs/permutation/paracetamol_dft_energy.hdf5","w")
         file["err"] = err2
@@ -52,10 +52,10 @@ begin
     begin
         @info "Forces"
         layers = [8000]
-        s1 = 1.0
-        s2 = 0.0
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic = Uniform
         lam = 1e-8
@@ -71,7 +71,7 @@ begin
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
         @show m2,r2
-        display(plot(f1,f2,size=(800,300)))
+        # display(plot(f1,f2,size=(800,300)))
 
         file = h5open("logs/permutation/paracetamol_dft_force.hdf5","w")
         file["err"] = err2

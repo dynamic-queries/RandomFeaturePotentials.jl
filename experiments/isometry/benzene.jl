@@ -24,7 +24,7 @@ begin
         activation = gelu
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
-        lam = 1e-7
+        lam = 1e-9
 
         train,test = split_data(R,E)
         xtrain,ytrain = train

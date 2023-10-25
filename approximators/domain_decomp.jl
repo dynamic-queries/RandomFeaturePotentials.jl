@@ -27,7 +27,7 @@ function (es::RFNN_DD)(xtrain, ytrain, heuristic::typeof(AbstractHeuristic), λ)
     end 
 
     bases = []
-    ϕ = (W,b,x) -> es.activation.(W*x .+ b)
+    ϕ = (W,b,x) -> es.activation.(W*x .- b)
     for i=1:n
         push!(bases, ϕ(Ws[i],bs[i],xtrain[i,:,:])')
     end 
@@ -42,7 +42,7 @@ function (es::RFNN_DD)(xtrain, ytrain, heuristic::typeof(AbstractHeuristic), λ)
         n = floor(Int,sqrt(size(xtest,1)))
         bases = []
         xtest = reshape(xtest, n, n, :)
-        ϕ = (W,b,x) -> es.activation.(W*x .+ b)
+        ϕ = (W,b,x) -> es.activation.(W*x .- b)
         for i=1:n
             push!(bases, ϕ(Ws[i],bs[i],xtest[i,:,:])')
         end 

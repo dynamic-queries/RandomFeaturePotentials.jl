@@ -12,20 +12,20 @@ begin
     close(file)
 end
 
-f1 = plot(R[:,1],legend=false)
+f1 = plot(R,legend=false)
 
 begin 
     #Approximate energy
     begin
         @info "Energy"
-        layers = [10000]
+        layers = [5000]
         s1 = 2*log(1.5)
         s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
         activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic=Uniform
-        lam = 1e-7
+        lam = 1e-3
     
 
         train,test = split_data(R,E)
@@ -34,6 +34,7 @@ begin
         Eapprox = m(xtrain,ytrain,heuristic,lam)
 
         f1,m1,r1,err1 = validate(Eapprox,train)
+        @show m1,r1
 
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
@@ -51,11 +52,11 @@ begin
     # Approximate forces
     begin
         @info "Forces"
-        layers = [12000]
-        s1 = 1.0
-        s2 = 0.0
+        layers = [8000]
+        s1 = 2*log(1.5)
+        s2 = log(1.5)
         feature_model = LinearFeatureModel(s1,s2)
-        activation = gelu
+        activation = tanh
         m = RFNN(layers,feature_model;activation=activation)
         heuristic = Uniform
         lam = 1e-4
@@ -66,7 +67,7 @@ begin
         Eapprox = m(xtrain,ytrain,heuristic,lam)
 
         f1,m1,r1,err1 = validate(Eapprox,train)
-
+        @show m1,r1
 
         @info "BB"
         f2,m2,r2,err2 = validate(Eapprox,test)
