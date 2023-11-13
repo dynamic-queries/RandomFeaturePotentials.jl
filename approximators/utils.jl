@@ -3,6 +3,7 @@ using StatsBase
 using Random
 using Statistics
 using StatsPlots
+using FFTW
 
 
 abstract type AbstractApproximator end

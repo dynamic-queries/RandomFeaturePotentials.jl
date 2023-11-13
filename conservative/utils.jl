@@ -1,13 +1,12 @@
 using HDF5
 using Plots
 
-function predict(layers, lam, label)
+function predict(layers, lam, label, heuristic)
     s1 = 2*log(1.5)
     s2 = log(1.5)
     activation = tanh
     Dactivation = x->sech(x)^2
     feature_model = LinearFeatureModel(s1,s2)
-    heuristic = Uniform
     stru = RFNN_Conservative(layers, feature_model,multiplicity=1,activation=activation,D_activation=Dactivation)
     Ef,Ff = stru(xtrain,ytrain,ztrain,heuristic, lam)
 
