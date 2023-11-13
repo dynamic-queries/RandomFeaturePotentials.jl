@@ -78,23 +78,3 @@ function (stru::RFNN_Conservative)(xtrain, ytrain, ztrain, heuristic::typeof(Abs
     end 
     return E,F
 end
-
-using HDF5
-filename = "data/benzene2017.hdf5"
-file = h5open(filename)
-R = read(file["R"])
-E = read(file["E"])
-F = read(file["F"])
-
-layers = [5000]
-s1 = 2*log(1.5)
-s2 = log(1.5)
-activation = tanh
-Dactivation = x->sech(x)^2
-feature_model = LinearFeatureModel(s1,s2)
-heuristic = Uniform
-stru = RFNN_Conservative(layers, feature_model,multiplicity=1,activation=activation,D_activation=Dactivation)
-Ef,Ff = stru(R,E,F,heuristic, 1e-8)
-
-plot(E[:],E[:])
-scatter!(E[:],Ef(R)[:])

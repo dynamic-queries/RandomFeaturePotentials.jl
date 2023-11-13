@@ -82,7 +82,7 @@ end
 # ---------------------------------------------------------------------------------------------- #
 # Activation functions
 gelu = x -> 0.5*x*(1+tanh(sqrt(2/π)*(x+0.044715*x^3)))
-relu = x -> max(x,0)
+relu = x -> max(x,0) 
 
 function deepset(CM,ts,k)
     s = size(CM)
