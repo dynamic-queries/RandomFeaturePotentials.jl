@@ -6,4 +6,4 @@ authors:
 title: "RandomFeaturePotentials.jl - A julia package for force field surrogates based on random features."
 version: 0.0.1
 date-released: 2023-01-01
-url: "https://github.com/dynamic-queries/MOL_RFNN"
+url: "https://github.com/dynamic-queries/RandomFeaturePotentials.jl"
